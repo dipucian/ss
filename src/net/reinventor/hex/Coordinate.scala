@@ -1,3 +1,5 @@
+package net.reinventor.hex
+
 trait Coordinate {
   def cube: (Int, Int, Int)
   def axial: (Int, Int)

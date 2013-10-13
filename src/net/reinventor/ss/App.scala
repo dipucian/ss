@@ -1,29 +1,32 @@
-package net.reinventor.hex
+package net.reinventor.ss
 
 import scala.swing._
 import java.awt.Polygon
+import net.reinventor.hex.{Region, Coordinate}
 
 object App extends SimpleSwingApplication {
+  val game = new GameImpl
+  val gameUI = new GameUI(game)
+
   def top: Frame = new MainFrame {
     title = "Hello world~~"
     minimumSize = new Dimension(800, 600)
-
-    contents = new GameUI
-
+    contents = gameUI
     centerOnScreen()
   }
 }
 
-class HexRegion(val coordinates: (Int, Int)*)
+trait Game {
+  def map: Set[Coordinate]
+}
+class GameImpl extends Game {
+  def map = Region.Range(4)
+}
 
-class GameUI extends Component {
-  val coords = for {
-    q <- -3 to 3
-    r <- -3 to 3
-  } yield (q, r)
-  val grid = new HexRegion(coords: _*)
+class GameUI(game: Game) extends Component {
+  val grid = game.map
 
-  val hexSize = 20.5
+  val hexSize = 20
   val Hex = hexagon(hexSize)
   def drawHex(g: Graphics2D, coord: (Int, Int)): Unit = {
     val (q, r) = coord
@@ -37,8 +40,8 @@ class GameUI extends Component {
 
   override protected def paintComponent(g: Graphics2D): Unit = {
     g.translate(300, 300)
-    for (hex <- grid.coordinates) {
-      drawHex(g, hex)
+    for (hex <- grid) {
+      drawHex(g, hex.axial)
     }
   }
 
