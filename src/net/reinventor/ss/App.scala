@@ -2,6 +2,7 @@ package net.reinventor.ss
 
 import scala.swing._
 import java.awt.{RenderingHints, Polygon}
+import scala.swing.event.{MouseMoved, MouseClicked}
 
 object App extends SimpleSwingApplication {
   val game = new GameImpl
@@ -11,6 +12,7 @@ object App extends SimpleSwingApplication {
     title = "Hello world~~"
     minimumSize = new Dimension(800, 600)
     contents = gameUI
+
     centerOnScreen()
   }
 }
@@ -18,12 +20,26 @@ object App extends SimpleSwingApplication {
 class GameUI(game: Game) extends Component {
   val grid = game.map
 
-  val hexSize = 25
-  val Hex = hexagon(hexSize)
+  /**
+   * for regular hexagon,
+   * width = 2 * size, height = sqrt(3)/2 * width
+   * => halfHeight = sqrt(3) * quarterWidth
+   */
+  val hexSize = 24
+  val quarterWidth: Int = hexSize / 2
+  val halfHeight: Int = (math.sqrt(3) * quarterWidth).toInt
+  val Hex = hexagon(quarterWidth, halfHeight)
+
+  listenTo(mouse.moves, mouse.clicks)
+  reactions += {
+    //case e: MouseMoved => println(e)
+    case e: MouseClicked => println(e)
+  }
+
   def drawHex(g: Graphics2D, coord: (Int, Int)): Unit = {
     val (q, r) = coord
-    val x = q * 1.5 * hexSize
-    val y = (r + q * .5) * math.sqrt(3) * hexSize
+    val x = q * 3 * quarterWidth
+    val y = r * 2 * halfHeight + q * halfHeight
     val oriTransform = g.getTransform
     g.translate(x, y)
     g.drawPolygon(Hex)
@@ -42,16 +58,17 @@ class GameUI(game: Game) extends Component {
     }
   }
 
-  private def hexagon(size: Double): Polygon = {
-    val points = for {
-      i <- 0 to 5
-      angle = 2 * math.Pi / 6 * i
-      x = size * math.cos(angle)
-      y = size * math.sin(angle)
-    } yield (x.toInt, y.toInt)
-
-    val (x, y) = points.unzip
-
-    new Polygon(x.toArray, y.toArray, 6)
+  private def hexagon(quarterWidth: Int, halfHeight: Int): Polygon = {
+    val points = Array(
+      (2*quarterWidth, 0),
+      (quarterWidth, halfHeight),
+      (-quarterWidth, halfHeight),
+      (-2*quarterWidth, 0),
+      (-quarterWidth, -halfHeight),
+      (quarterWidth, -halfHeight)
+    )
+    val (xs, ys) = points.unzip
+    new Polygon(xs.toArray, ys.toArray, 6)
   }
+
 }
