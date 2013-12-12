@@ -2,7 +2,7 @@ package net.reinventor.ss
 
 import scala.swing._
 import java.awt.{RenderingHints, Polygon}
-import scala.swing.event.{MouseMoved, MouseClicked}
+import scala.swing.event.MouseClicked
 
 object App extends SimpleSwingApplication {
   val game = new GameImpl
