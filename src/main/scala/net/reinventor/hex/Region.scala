@@ -4,7 +4,10 @@ trait Region extends Set[Coordinate]
 
 object Region {
 
-  import Coordinate._
+  def apply(axial: (Int, Int)*): Region = {
+    val cells = axial.map {case (q, r) => Axial(q, r)}
+    new RegionImpl(cells.toSet)
+  }
 
   def Range(n: Int): Region = {
     val cells: Set[Coordinate] = for {
