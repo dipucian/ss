@@ -1,6 +1,8 @@
 package net.reinventor.hex
 
-trait Region extends Set[Coordinate]
+trait Region extends Set[Coordinate] {
+  def translate(delta: Coordinate): Region
+}
 
 object Region {
 
@@ -8,6 +10,8 @@ object Region {
     val cells = axial.map {case (q, r) => Axial(q, r)}
     new RegionImpl(cells.toSet)
   }
+
+  def apply(n: Int): Region = Range(n)
 
   def Range(n: Int): Region = {
     val cells: Set[Coordinate] = for {
@@ -28,6 +32,15 @@ object Region {
     def +(elem: Coordinate): Region = new RegionImpl(cells + elem)
 
     def -(elem: Coordinate): Region = new RegionImpl(cells - elem)
+
+    def translate(delta: Coordinate): Region = {
+      val (dq, dr) = delta.axial
+      val newCells: Set[Coordinate] = cells.map(c => {
+        val (q, r) = c.axial
+        Axial(q + dq, r + dr)
+      })
+      new RegionImpl(newCells)
+    }
   }
 
 }
