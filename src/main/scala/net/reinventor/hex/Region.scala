@@ -11,6 +11,16 @@ object Region {
     new RegionImpl(cells.toSet)
   }
 
+  def apply(row: Int, col: Int): Region = {
+    val cells: Seq[Coordinate] = for {
+      q <- 0 until col
+      offset = q / 2
+      r <- 0 until row
+    } yield Axial(q, r - offset)
+
+    new RegionImpl(cells.toSet)
+  }
+
   def apply(n: Int): Region = Range(n)
 
   def Range(n: Int): Region = {
