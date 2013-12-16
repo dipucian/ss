@@ -33,7 +33,10 @@ class GameUI(game: Game) extends Component {
   listenTo(mouse.moves, mouse.clicks)
   reactions += {
     //case e: MouseMoved => println(e)
-    case e: MouseClicked => println(e)
+    case e: MouseClicked => {
+      game.step()
+      repaint()
+    }
   }
 
   def drawHex(g: Graphics2D, coord: (Int, Int)): Unit = {
@@ -50,11 +53,29 @@ class GameUI(game: Game) extends Component {
     g.setTransform(oriTransform)
   }
 
+  def fillHex(g: Graphics2D, coord: (Int, Int)): Unit = {
+    val (q, r) = coord
+    val x = q * 3 * quarterWidth
+    val y = r * 2 * halfHeight + q * halfHeight
+    val oriTransform = g.getTransform
+    g.translate(x, y)
+    g.fillPolygon(Hex)
+    val s = s"($q, $r)"
+    val fm = g.getFontMetrics
+    val sw = fm.stringWidth(s)
+    g.drawString(s, -sw/2, fm.getAscent/2)
+    g.setTransform(oriTransform)
+  }
+
   override protected def paintComponent(g: Graphics2D): Unit = {
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     g.translate(300, 300)
     for (hex <- grid) {
       drawHex(g, hex.axial)
+    }
+
+    for (c <- game.characters) {
+      fillHex(g, c.pos.axial)
     }
   }
 
