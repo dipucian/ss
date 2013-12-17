@@ -44,11 +44,7 @@ object Region {
     def -(elem: Coordinate): Region = new RegionImpl(cells - elem)
 
     def translate(delta: Coordinate): Region = {
-      val (dq, dr) = delta.axial
-      val newCells: Set[Coordinate] = cells.map(c => {
-        val (q, r) = c.axial
-        Axial(q + dq, r + dr)
-      })
+      val newCells: Set[Coordinate] = cells.map(_ + delta)
       new RegionImpl(newCells)
     }
   }
