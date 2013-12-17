@@ -7,4 +7,8 @@ class CoordinateSpec extends FlatSpec with Matchers {
   	assert(Axial(0, 0) == Cube(0, 0, 0))
   	assert(Cube(0, 0, 0) == Axial(0, 0))
   }
+
+  "Axial(0, 0)" should "have the same hashCode as Cube(0, 0, 0)" in {
+    Axial(0, 0).hashCode should equal(Cube(0, 0, 0).hashCode)
+  }
 }
