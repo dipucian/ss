@@ -1,8 +1,11 @@
 package net.reinventor.ss
 
 import scala.swing._
+import scala.swing.event._
 import java.awt.{RenderingHints, Polygon}
 import scala.swing.event.MouseClicked
+
+import net.reinventor.hex._
 
 object App extends SimpleSwingApplication {
   val game = new GameImpl
@@ -18,6 +21,9 @@ object App extends SimpleSwingApplication {
 }
 
 class GameUI(game: Game) extends Component {
+  focusable = true
+  requestFocus
+
   val grid = game.map
 
   /**
@@ -30,11 +36,25 @@ class GameUI(game: Game) extends Component {
   val halfHeight: Int = (math.sqrt(3) * quarterWidth).toInt
   val Hex = hexagon(quarterWidth, halfHeight)
 
-  listenTo(mouse.moves, mouse.clicks)
+  listenTo(mouse.moves, mouse.clicks, keys)
   reactions += {
     //case e: MouseMoved => println(e)
     case e: MouseClicked => {
       game.step()
+      repaint()
+    }
+
+    case KeyReleased(_, Key.Space, _, _) => {
+      game.step()
+      repaint()
+    }
+
+    case KeyReleased(_, Key.Key1, _, _) => {
+      game.addCharacter(new Character(Axial(0, 4)))
+      repaint()
+    }
+    case KeyReleased(_, Key.Key2, _, _) => {
+      game.addCharacter(new Character(Axial(0, -4)))
       repaint()
     }
   }
@@ -75,7 +95,7 @@ class GameUI(game: Game) extends Component {
     }
 
     for (c <- game.characters) {
-      fillHex(g, c.pos.axial)
+      fillHex(g, c.position.axial)
     }
   }
 
