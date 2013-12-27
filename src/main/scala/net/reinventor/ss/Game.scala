@@ -14,12 +14,18 @@ trait Game {
 class GameImpl extends Game {
   def map = Region.Range(4)
 
-  //val characters: List[Character] = List(new Character)
   def step(): Unit = {
+    characters.foreach { character =>
+      character.movementPoints += 1
 
-    /*characters.foreach(c => c.controller.action match {
-      case Move(q, r) => c.pos = Axial(c.pos.axial._1 + q, c.pos.axial._2 + r)
-    })*/
+      if (character.movementPoints == 10) {
+        character.movementPoints = 0
+
+        character.ai.nextAction(character) match {
+          case Move(q, r) => character.position += Axial(q, r)
+        }
+      }
+    }
   }
 
   def addCharacter(c: Character): Unit = {
@@ -29,12 +35,13 @@ class GameImpl extends Game {
   var characters: List[Character] = List.empty
 }
 
-class Character(pos: Coordinate) extends CharacterState {
+class Character(val owner: Player, var ai: AI) extends CharacterState {
   var movementPoints: Int = 0
-  var position: Coordinate = pos
+  var position: Coordinate = owner.base
 }
 
 trait CharacterState {
+  def owner: Player
   def movementPoints: Int
   def position: Coordinate
 }
@@ -43,5 +50,13 @@ trait CharacterController {
   def action: Action
 }
 
-sealed trait Action {}
+trait Player {
+  def base: Coordinate
+}
+
+trait AI {
+  def nextAction(state: CharacterState): Action
+}
+
+sealed trait Action
 case class Move(q: Int, r: Int) extends Action

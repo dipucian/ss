@@ -36,6 +36,16 @@ class GameUI(game: Game) extends Component {
   val halfHeight: Int = (math.sqrt(3) * quarterWidth).toInt
   val Hex = hexagon(quarterWidth, halfHeight)
 
+  val player1 = new Player { val base = Axial(0, 4) }
+  val player2 = new Player { val base = Axial(0, -4) }
+  val ai = new AI {
+    def nextAction(state: CharacterState) = {
+      val (q, r) = state.position.axial
+      if (q > r) Move(-1, 0)
+      else Move(0, -1)
+    }
+  }
+
   listenTo(mouse.moves, mouse.clicks, keys)
   reactions += {
     //case e: MouseMoved => println(e)
@@ -50,11 +60,11 @@ class GameUI(game: Game) extends Component {
     }
 
     case KeyReleased(_, Key.Key1, _, _) => {
-      game.addCharacter(new Character(Axial(0, 4)))
+      game.addCharacter(new Character(player1, ai))
       repaint()
     }
     case KeyReleased(_, Key.Key2, _, _) => {
-      game.addCharacter(new Character(Axial(0, -4)))
+      game.addCharacter(new Character(player2, ai))
       repaint()
     }
   }
