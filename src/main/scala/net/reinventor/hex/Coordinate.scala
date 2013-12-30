@@ -5,7 +5,11 @@ sealed trait Coordinate {
   def axial: (Int, Int)
 
   def + (c: Coordinate): Coordinate = {
-    Axial(c.axial._1 + axial._1, c.axial._2 + axial._2)
+    Axial(axial._1 + c.axial._1, axial._2 + c.axial._2)
+  }
+
+  def - (c: Coordinate): Coordinate = {
+    Axial(axial._1 - c.axial._1, axial._2 - c.axial._2)
   }
 
   override def equals(o: Any): Boolean = o match {

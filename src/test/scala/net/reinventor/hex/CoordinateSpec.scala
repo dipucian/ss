@@ -15,4 +15,8 @@ class CoordinateSpec extends FlatSpec with Matchers {
   "Axial(2, -1) + Cube(1, 1, -2)" should "equals Axial(3, -3)" in {
     Axial(2, -1) + Cube(1, 1, -2) should equal (Axial(3, -3))
   }
+
+  "Axial(2, -1) - Axial(1, 1)" should "equals Axial(1, -2)" in {
+    Axial(2, -1) - Axial(1, 1) should equal (Axial(1, -2))
+  }
 }
