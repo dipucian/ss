@@ -2,13 +2,14 @@ package net.reinventor.ss
 
 import net.reinventor.hex._
 
-trait Game {
+trait Game extends GameState {
+  def step(): Unit
+  def addCharacter(c: Character): Unit
+}
+
+trait GameState {
   def map: Set[Coordinate]
   def characters: List[CharacterState]
-
-  def step(): Unit
-
-  def addCharacter(c: Character): Unit
 }
 
 class GameImpl extends Game {
@@ -21,7 +22,7 @@ class GameImpl extends Game {
       if (character.movementPoints == 10) {
         character.movementPoints = 0
 
-        character.ai.nextAction(character) match {
+        character.ai.nextAction(character, this) match {
           case Move(q, r) => character.position += Axial(q, r)
         }
       }
@@ -46,16 +47,12 @@ trait CharacterState {
   def position: Coordinate
 }
 
-trait CharacterController {
-  def action: Action
-}
-
 trait Player {
   def base: Coordinate
 }
 
 trait AI {
-  def nextAction(state: CharacterState): Action
+  def nextAction(selfState: CharacterState, gameState: GameState): Action
 }
 
 sealed trait Action

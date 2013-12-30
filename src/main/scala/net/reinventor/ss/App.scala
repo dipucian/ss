@@ -39,10 +39,13 @@ class GameUI(game: Game) extends Component {
   val player1 = new Player { val base = Axial(0, 4) }
   val player2 = new Player { val base = Axial(0, -4) }
   val ai = new AI {
-    def nextAction(state: CharacterState) = {
-      val (q, r) = state.position.axial
-      if (q > r) Move(-1, 0)
-      else Move(0, -1)
+    def nextAction(selfState: CharacterState, gameState: GameState): Action = {
+      val (q, r) = selfState.position.axial
+      if (q > 0) Move(-1, 0)
+      else if (r > 0) Move(0, -1)
+      else if (q < 0) Move(1, 0)
+      else if (r < 0) Move(0, 1)
+      else Move(0, 0)
     }
   }
 
