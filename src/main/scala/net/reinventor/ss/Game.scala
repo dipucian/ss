@@ -17,6 +17,10 @@ class GameImpl extends Game {
   def map = Region.Range(4)
 
   def step(): Unit = {
+    bullets.foreach { bullet =>
+      bullet.move()
+    }
+
     characters.foreach { character =>
       character.movementPoints += 1
 
@@ -63,8 +67,18 @@ case class Move(q: Int, r: Int) extends Action
 case class Attack(info: AttackInfo) extends Action
 
 sealed trait AttackInfo
-case class BulletInfo(speed: Float, bearing: Float, lifeSpan: Int) extends AttackInfo
+case class BulletInfo(from: (Double, Double), speed: Double, bearing: Double, lifeSpan: Int) extends AttackInfo
 
 class Bullet(val owner: Player, info: BulletInfo) {
-  var position: Coordinate = Axial(0, 0)
+  import scala.math._
+
+  var moveCount = 0
+  val (dx, dy) = (sin(info.bearing), cos(info.bearing))
+  var position: (Double, Double) = (0, 0)
+
+  def move(): Unit = {
+    moveCount += 1
+    val r = moveCount * info.speed
+    position = (info.from._1 + dx * r, info.from._2 + dy * r)
+  }
 }

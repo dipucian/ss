@@ -36,10 +36,27 @@ class GameUI(game: Game) extends Component {
   val halfHeight: Int = (math.sqrt(3) * quarterWidth).toInt
   val Hex = hexagon(quarterWidth, halfHeight)
 
+  def hexToPixel(axial: (Int, Int)): (Int, Int) = {
+    val (q, r) = axial
+    val x = q * 3 * quarterWidth
+    val y = r * 2 * halfHeight + q * halfHeight
+    (x, y)
+  }
+
   val player1 = new Player { val base = Axial(0, 4) }
   val player2 = new Player { val base = Axial(0, -4) }
-  val ai = new AI {
+  val ai1 = new testAI(math.Pi/6)
+  val ai2 = new testAI(math.Pi/3)
+
+  class testAI(angle: Double) extends AI {
+    var attacked = false
     def nextAction(selfState: CharacterState, gameState: GameState): Action = {
+      if (!attacked) {
+        val pos = hexToPixel(selfState.position.axial)
+        val dPos = (pos._1.toDouble, pos._2.toDouble)
+        return Attack(BulletInfo(dPos, 10, angle, 8))
+      }
+
       val (q, r) = selfState.position.axial
       if (q > 0) Move(-1, 0)
       else if (r > 0) Move(0, -1)
@@ -63,19 +80,20 @@ class GameUI(game: Game) extends Component {
     }
 
     case KeyReleased(_, Key.Key1, _, _) => {
-      game.addCharacter(new Character(player1, ai))
+      game.addCharacter(new Character(player1, ai1))
       repaint()
     }
     case KeyReleased(_, Key.Key2, _, _) => {
-      game.addCharacter(new Character(player2, ai))
+      game.addCharacter(new Character(player2, ai2))
       repaint()
     }
   }
 
   def drawHex(g: Graphics2D, coord: (Int, Int)): Unit = {
+    val (x, y) = hexToPixel(coord)
     val (q, r) = coord
-    val x = q * 3 * quarterWidth
-    val y = r * 2 * halfHeight + q * halfHeight
+    // val x = q * 3 * quarterWidth
+    // val y = r * 2 * halfHeight + q * halfHeight
     val oriTransform = g.getTransform
     g.translate(x, y)
     g.drawPolygon(Hex)
@@ -87,9 +105,10 @@ class GameUI(game: Game) extends Component {
   }
 
   def fillHex(g: Graphics2D, coord: (Int, Int)): Unit = {
+    val (x, y) = hexToPixel(coord)
     val (q, r) = coord
-    val x = q * 3 * quarterWidth
-    val y = r * 2 * halfHeight + q * halfHeight
+    // val x = q * 3 * quarterWidth
+    // val y = r * 2 * halfHeight + q * halfHeight
     val oriTransform = g.getTransform
     g.translate(x, y)
     g.fillPolygon(Hex)
@@ -110,6 +129,15 @@ class GameUI(game: Game) extends Component {
     for (c <- game.characters) {
       fillHex(g, c.position.axial)
     }
+
+    g.setColor(java.awt.Color.RED)
+    for (b <- game.bullets) {
+      drawBullet(g, b)
+    }
+  }
+
+  private def drawBullet(g: Graphics2D, bullet: Bullet): Unit = {
+    g.drawLine(bullet.position._1.toInt, bullet.position._2.toInt, (bullet.position._1 + bullet.dx).toInt, (bullet.position._2 + bullet.dy).toInt)
   }
 
   private def hexagon(quarterWidth: Int, halfHeight: Int): Polygon = {
